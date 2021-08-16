@@ -1,0 +1,1 @@
+/bin/x86_64-linux-gnu-g++-10  -Wall -pthread -g CMakeFiles/HlkPoolExample.dir/main.cpp.o -o HlkPoolExample  -Wl,-rpath,/home/uncellon/Repo/Dev/C++/hlk/pool/build ../libHlkPool.so 

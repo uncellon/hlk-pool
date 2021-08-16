@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/uncellon/Repo/Dev/C++/hlk/pool/build",
+  "command": "/bin/x86_64-linux-gnu-g++-10 -DHlkPool_EXPORTS -isystem /usr/local/include/hlk/events  -Wall -pthread -g -fPIC -std=gnu++17 -o CMakeFiles/HlkPool.dir/include/hlk/pool/pool.cpp.o -c /home/uncellon/Repo/Dev/C++/hlk/pool/include/hlk/pool/pool.cpp",
+  "file": "/home/uncellon/Repo/Dev/C++/hlk/pool/include/hlk/pool/pool.cpp"
+},
+{
+  "directory": "/home/uncellon/Repo/Dev/C++/hlk/pool/build/example",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/uncellon/Repo/Dev/C++/hlk/pool/include -isystem /usr/local/include/hlk/events  -Wall -pthread -g -std=gnu++17 -o CMakeFiles/HlkPoolExample.dir/main.cpp.o -c /home/uncellon/Repo/Dev/C++/hlk/pool/example/main.cpp",
+  "file": "/home/uncellon/Repo/Dev/C++/hlk/pool/example/main.cpp"
+}
+]
