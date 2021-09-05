@@ -1,5 +1,7 @@
 #include "hlk/pool/pool.h"
 
+#include <future>
+#include <string>
 #include <iostream>
 #include <unistd.h>
 
@@ -8,15 +10,25 @@ void function(int number) {
 }
 
 int main(int argc, char *argv[]) {
-    Hlk::Pool tp;
+    auto tp = Hlk::Pool::getInstance();
 
-    Hlk::WorkBase wb;
-    Hlk::Delegate<void, int> del([] (int number) {
-        std::cout << "Number from delegate: " << number << std::endl;
-    });
-    wb.set(std::move(del), 1);
+    tp->pushTask([] (int a) {
+        std::cout << a << std::endl;
+    }, 2);
+    for (int i = 0; i < 10000; ++i) {
+        auto del = Hlk::Delegate<void()>([i] () {
+            std::cout << "Task " + std::to_string(i) << "\n";
+        });
+        tp->pushTask(del);
+    }
 
-    sleep(3);
+    auto f = tp->phTask(Hlk::Delegate<bool(int)>([] (int a) -> bool {
+        return true;
+    }), 2);
+
+    sleep(5);
+
+    std::cout << "Future result: " << f.get() << std::endl;
 
     return 0;
 }
