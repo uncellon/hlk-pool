@@ -10,7 +10,7 @@ Pool *Pool::m_pool = nullptr;
 
 Pool* Pool::getInstance() {
     if (!m_pool) {
-        return new Pool();
+        m_pool = new Pool();
     }
     return m_pool;
 }
