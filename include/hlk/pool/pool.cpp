@@ -3,12 +3,15 @@
 namespace Hlk {
 
 Pool *Pool::m_pool = nullptr;
+std::mutex Pool::m_singletonMutex;
 
 /******************************************************************************
  * Public methods
  *****************************************************************************/
 
 Pool* Pool::getInstance() {
+    std::unique_lock lock(m_singletonMutex);
+
     if (!m_pool) {
         m_pool = new Pool();
     }

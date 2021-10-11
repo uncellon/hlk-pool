@@ -136,6 +136,7 @@ protected:
      *************************************************************************/
 
     static Pool *m_pool;
+    static std::mutex m_singletonMutex;
 
     std::vector<std::thread *> m_threads;
     std::vector<std::mutex *> m_mutexes;
