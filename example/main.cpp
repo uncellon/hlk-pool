@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
         tp->pushTask(del);
     }
 
-    auto f = tp->phTask(Hlk::Delegate<bool(int)>([] (int a) -> bool {
+    auto f = tp->getFuture(Hlk::Delegate<bool(int)>([] (int a) -> bool {
         return true;
     }), 2);
 

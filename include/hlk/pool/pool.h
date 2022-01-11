@@ -1,78 +1,20 @@
 #ifndef HLK_POOL_POOL_H
 #define HLK_POOL_POOL_H
 
+#include "task.h"
+
 #include <queue>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <future>
 #include <condition_variable>
-#include <hlk/events/delegate.h>
 
 namespace Hlk {
-
-class BaseTask {
-public:
-    virtual ~BaseTask() { }
-
-    virtual void execute() = 0;
-};
-
-template<class TFunction>
-class Task;
-
-// Specialization without return and arguments
-template<> 
-class Task<void()> : public BaseTask {
-public:
-    virtual inline void execute() override {
-        delegate();
-    }
-
-    Delegate<void()> delegate;
-};
-
-// Specialization without return and with arguments
-template<class... TArgs>
-class Task<void(TArgs...)> : public BaseTask {
-public:
-    virtual inline void execute() override {
-        delegate(std::get<TArgs...>(args));
-    }
-
-    Delegate<void(TArgs...)> delegate;
-    std::tuple<TArgs...> args;
-};
-
-// Specialization with return and without arguments
-template<class TReturn>
-class Task<TReturn()> : public BaseTask {
-public:
-    virtual inline void execute() override {
-        promise.set_value(delegate());
-    }
-
-    Delegate<TReturn()> delegate;
-    std::promise<TReturn> promise;
-};
-
-// Specialization with return and arguments
-template<class TReturn, class... TArgs>
-class Task<TReturn(TArgs...)> : public BaseTask {
-public:
-    virtual inline void execute() override {
-        promise.set_value(delegate(std::get<TArgs...>(args)));
-    }
-
-    Delegate<TReturn(TArgs...)> delegate;
-    std::tuple<TArgs...> args;
-    std::promise<TReturn> promise;
-};
 
 class Pool {
 public:
     /**************************************************************************
-     * Public methods
+     * Methods
      *************************************************************************/
 
     static Pool* getInstance();
@@ -103,7 +45,7 @@ public:
     }
 
     template<class TReturn, class... TArgs>
-    std::future<TReturn> phTask(Delegate<TReturn(TArgs...)> delegate, TArgs&&... args) {
+    std::future<TReturn> getFuture(Delegate<TReturn(TArgs...)> delegate, TArgs&&... args) {
         m_queueMutex.lock();
 
         auto unit = new Task<TReturn(TArgs...)>();
@@ -119,28 +61,28 @@ public:
 
 protected:
     /**************************************************************************
-     * Constructors / Destructors
+     * Constructors / Destructors (Protected)
      *************************************************************************/
 
     Pool(unsigned int threadCount = std::thread::hardware_concurrency());
     ~Pool();
 
     /**************************************************************************
-     * Protected methods
+     * Methods (Protected)
      *************************************************************************/
 
-    void threadLoop(int mutexIndex);
+    void workerLoop(int mutexIndex);
 
     /**************************************************************************
-     * Protected members
+     * Members
      *************************************************************************/
 
     static Pool *m_pool;
     static std::mutex m_singletonMutex;
 
     std::vector<std::thread *> m_threads;
-    std::vector<std::mutex *> m_mutexes;
-    std::queue<BaseTask *> m_tasks;
+    std::vector<std::mutex *> m_lockMutexes;
+    std::queue<AbstractTask *> m_tasks;
     std::condition_variable m_cv;
     std::mutex m_queueMutex;
 

@@ -6,12 +6,11 @@ Pool *Pool::m_pool = nullptr;
 std::mutex Pool::m_singletonMutex;
 
 /******************************************************************************
- * Public methods
+ * Methods
  *****************************************************************************/
 
 Pool* Pool::getInstance() {
     std::unique_lock lock(m_singletonMutex);
-
     if (!m_pool) {
         m_pool = new Pool();
     }
@@ -19,14 +18,14 @@ Pool* Pool::getInstance() {
 }
 
 /******************************************************************************
- * Constructors / Destructors
+ * Constructors / Destructors (Protected)
  *****************************************************************************/
 
 Pool::Pool(unsigned int threadCount) {
     m_running = true;
     for (unsigned int i = 0; i < threadCount; ++i) {
-        m_mutexes.emplace_back(new std::mutex());
-        m_threads.emplace_back(new std::thread(&Pool::threadLoop, this, i));
+        m_lockMutexes.emplace_back(new std::mutex());
+        m_threads.emplace_back(new std::thread(&Pool::workerLoop, this, i));
     }
 }
 
@@ -36,16 +35,16 @@ Pool::~Pool() {
         m_cv.notify_one();
         m_threads[i]->detach();
         delete m_threads[i];
-        delete m_mutexes[i];
+        delete m_lockMutexes[i];
     }
 }
 
 /******************************************************************************
- * Protected methods
+ * Methods (Protected)
  *****************************************************************************/
 
-void Pool::threadLoop(int mutexIndex) {
-    std::unique_lock lock(*m_mutexes[mutexIndex], std::defer_lock);
+void Pool::workerLoop(int mutexIndex) {
+    std::unique_lock lock(*m_lockMutexes[mutexIndex], std::defer_lock);
     while (m_running) {
         m_queueMutex.lock();
         if (m_tasks.empty()) {
